@@ -1,0 +1,298 @@
+{
+  "samples": 48,
+  "topics": 6,
+  "mae": 12.1,
+  "r2": 0.813,
+  "method": "Leave-one-topic-out validation (6 folds)",
+  "source": "Original synthetic demonstration dataset; labels are illustrative, not teacher grades.",
+  "predictions": [
+    {
+      "topic": "ml",
+      "variant": "complete",
+      "expected": 96,
+      "predicted": 89.32
+    },
+    {
+      "topic": "ml",
+      "variant": "paraphrase",
+      "expected": 88,
+      "predicted": 62.84
+    },
+    {
+      "topic": "ml",
+      "variant": "partial",
+      "expected": 48,
+      "predicted": 44.62
+    },
+    {
+      "topic": "ml",
+      "variant": "brief",
+      "expected": 25,
+      "predicted": 17.21
+    },
+    {
+      "topic": "ml",
+      "variant": "off_topic",
+      "expected": 3,
+      "predicted": 24.69
+    },
+    {
+      "topic": "ml",
+      "variant": "keyword_list",
+      "expected": 18,
+      "predicted": 41.27
+    },
+    {
+      "topic": "ml",
+      "variant": "repeated",
+      "expected": 22,
+      "predicted": 26.52
+    },
+    {
+      "topic": "ml",
+      "variant": "expanded",
+      "expected": 93,
+      "predicted": 85.99
+    },
+    {
+      "topic": "db",
+      "variant": "complete",
+      "expected": 96,
+      "predicted": 96.46
+    },
+    {
+      "topic": "db",
+      "variant": "paraphrase",
+      "expected": 88,
+      "predicted": 67.61
+    },
+    {
+      "topic": "db",
+      "variant": "partial",
+      "expected": 48,
+      "predicted": 40.53
+    },
+    {
+      "topic": "db",
+      "variant": "brief",
+      "expected": 25,
+      "predicted": 5.28
+    },
+    {
+      "topic": "db",
+      "variant": "off_topic",
+      "expected": 3,
+      "predicted": 23.61
+    },
+    {
+      "topic": "db",
+      "variant": "keyword_list",
+      "expected": 18,
+      "predicted": 40.28
+    },
+    {
+      "topic": "db",
+      "variant": "repeated",
+      "expected": 22,
+      "predicted": 14.38
+    },
+    {
+      "topic": "db",
+      "variant": "expanded",
+      "expected": 93,
+      "predicted": 93.4
+    },
+    {
+      "topic": "os",
+      "variant": "complete",
+      "expected": 96,
+      "predicted": 96.61
+    },
+    {
+      "topic": "os",
+      "variant": "paraphrase",
+      "expected": 88,
+      "predicted": 69.06
+    },
+    {
+      "topic": "os",
+      "variant": "partial",
+      "expected": 48,
+      "predicted": 36.98
+    },
+    {
+      "topic": "os",
+      "variant": "brief",
+      "expected": 25,
+      "predicted": 0.0
+    },
+    {
+      "topic": "os",
+      "variant": "off_topic",
+      "expected": 3,
+      "predicted": 22.24
+    },
+    {
+      "topic": "os",
+      "variant": "keyword_list",
+      "expected": 18,
+      "predicted": 42.57
+    },
+    {
+      "topic": "os",
+      "variant": "repeated",
+      "expected": 22,
+      "predicted": 6.8
+    },
+    {
+      "topic": "os",
+      "variant": "expanded",
+      "expected": 93,
+      "predicted": 93.24
+    },
+    {
+      "topic": "net",
+      "variant": "complete",
+      "expected": 96,
+      "predicted": 96.35
+    },
+    {
+      "topic": "net",
+      "variant": "paraphrase",
+      "expected": 88,
+      "predicted": 65.91
+    },
+    {
+      "topic": "net",
+      "variant": "partial",
+      "expected": 48,
+      "predicted": 52.6
+    },
+    {
+      "topic": "net",
+      "variant": "brief",
+      "expected": 25,
+      "predicted": 18.48
+    },
+    {
+      "topic": "net",
+      "variant": "off_topic",
+      "expected": 3,
+      "predicted": 24.18
+    },
+    {
+      "topic": "net",
+      "variant": "keyword_list",
+      "expected": 18,
+      "predicted": 40.85
+    },
+    {
+      "topic": "net",
+      "variant": "repeated",
+      "expected": 22,
+      "predicted": 27.66
+    },
+    {
+      "topic": "net",
+      "variant": "expanded",
+      "expected": 93,
+      "predicted": 93.16
+    },
+    {
+      "topic": "ds",
+      "variant": "complete",
+      "expected": 96,
+      "predicted": 96.52
+    },
+    {
+      "topic": "ds",
+      "variant": "paraphrase",
+      "expected": 88,
+      "predicted": 64.9
+    },
+    {
+      "topic": "ds",
+      "variant": "partial",
+      "expected": 48,
+      "predicted": 43.5
+    },
+    {
+      "topic": "ds",
+      "variant": "brief",
+      "expected": 25,
+      "predicted": 5.43
+    },
+    {
+      "topic": "ds",
+      "variant": "off_topic",
+      "expected": 3,
+      "predicted": 23.24
+    },
+    {
+      "topic": "ds",
+      "variant": "keyword_list",
+      "expected": 18,
+      "predicted": 38.73
+    },
+    {
+      "topic": "ds",
+      "variant": "repeated",
+      "expected": 22,
+      "predicted": 14.23
+    },
+    {
+      "topic": "ds",
+      "variant": "expanded",
+      "expected": 93,
+      "predicted": 92.79
+    },
+    {
+      "topic": "se",
+      "variant": "complete",
+      "expected": 96,
+      "predicted": 96.34
+    },
+    {
+      "topic": "se",
+      "variant": "paraphrase",
+      "expected": 88,
+      "predicted": 64.9
+    },
+    {
+      "topic": "se",
+      "variant": "partial",
+      "expected": 48,
+      "predicted": 46.59
+    },
+    {
+      "topic": "se",
+      "variant": "brief",
+      "expected": 25,
+      "predicted": 17.84
+    },
+    {
+      "topic": "se",
+      "variant": "off_topic",
+      "expected": 3,
+      "predicted": 30.99
+    },
+    {
+      "topic": "se",
+      "variant": "keyword_list",
+      "expected": 18,
+      "predicted": 39.93
+    },
+    {
+      "topic": "se",
+      "variant": "repeated",
+      "expected": 22,
+      "predicted": 27.1
+    },
+    {
+      "topic": "se",
+      "variant": "expanded",
+      "expected": 93,
+      "predicted": 93.22
+    }
+  ]
+}

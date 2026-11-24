@@ -1,0 +1,1 @@
+With supervised methods, examples are paired with correct answers so the system can predict a result for a new input. A classifier assigns a category, while regression estimates a number. In contrast, unsupervised methods receive unlabeled data and seek hidden structure. Clustering creates groups of similar customers. Thus the presence of labels determines the learning setup.

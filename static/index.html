@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clarity · Assignment evaluation</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='9' fill='%2317302e'/%3E%3Cpath d='M28 12a11 11 0 1 0 0 16' fill='none' stroke='%23c0e1ce' stroke-width='4'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../static/style.css">
+  <script src="../static/app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#evaluate"><span aria-hidden="true">C</span> Clarity</a>
+      <nav aria-label="Main navigation">
+        <button type="button" data-view="evaluate" class="active">Evaluate</button>
+        <button type="button" data-view="history">Saved results</button>
+      </nav>
+    </div>
+  </header>
+  <main>
+    <section id="local-setup" class="panel setup" hidden>
+      <h1>Open Clarity from the launcher</h1>
+      <p>Double-click <strong>start.bat</strong> in the project folder. It starts the evaluation service and opens this app in your browser.</p>
+      <a class="button primary" href="http://127.0.0.1:8000">Open running app</a>
+    </section>
+    <section id="view-evaluate" class="view" hidden>
+      <div class="page-heading">
+        <div><h1>Evaluate an assignment</h1><p>Get a suggested score and feedback for a student’s answer.</p></div>
+        <button type="button" id="demo" class="button secondary">Try a sample</button>
+      </div>
+      <form id="evaluation-form" class="panel">
+        <div class="field-grid">
+          <label>Assignment<select id="template"><option value="">Custom assignment</option></select></label>
+          <label>Student name<input id="student" placeholder="e.g. Alex Morgan" maxlength="100" required></label>
+        </div>
+        <details id="reference-details">
+          <summary>Assignment settings</summary>
+          <div class="detail-body">
+            <label>Assignment title<input id="title" maxlength="160" required></label>
+            <label>Question<textarea id="question" rows="2" minlength="10" maxlength="5000" required></textarea></label>
+            <label>Reference answer<textarea id="reference" rows="4" minlength="30" maxlength="20000" required></textarea></label>
+            <label>Key concepts <small>Separate with commas. Use | for alternative wording.</small><textarea id="concepts" rows="2" required></textarea></label>
+            <details class="rubric">
+              <summary>Scoring weights</summary>
+              <div class="detail-body">
+                <div id="weights"></div>
+                <div class="inline"><span>Total: <strong id="weight-total">100%</strong></span><button type="button" id="reset-weights" class="text-button">Reset weights</button></div>
+              </div>
+            </details>
+          </div>
+        </details>
+        <div class="inline answer-tools">
+          <label for="answer">Student answer</label>
+          <label class="upload" for="file">Upload a file<input type="file" id="file" accept=".txt,.pdf,.docx"></label>
+        </div>
+        <textarea id="answer" rows="7" placeholder="Paste the student’s answer here…" minlength="20" maxlength="30000" required></textarea>
+        <div class="inline metadata"><span id="file-status" aria-live="polite">TXT, PDF or DOCX · up to 5 MB</span><span id="word-count">0 words</span></div>
+        <div class="submit-row"><button type="submit" class="button primary" id="evaluate-button">Evaluate assignment</button></div>
+      </form>
+    </section>
+    <section id="view-result" class="view" hidden></section>
+    <section id="view-history" class="view" hidden>
+      <div class="page-heading"><div><h1>Saved results</h1><p>Find and reopen past evaluations.</p></div><a href="/api/export" class="button secondary" download>Download CSV</a></div>
+      <div class="panel">
+        <label for="search">Search results</label>
+        <input id="search" type="search" placeholder="Student or assignment name">
+        <div id="history-list"></div>
+      </div>
+    </section>
+  </main>
+  <div id="toast" role="status" aria-live="polite" hidden></div>
+  <dialog id="delete-dialog" aria-labelledby="delete-title">
+    <h2 id="delete-title">Delete this evaluation?</h2>
+    <p>This removes the saved answer and feedback.</p>
+    <div class="dialog-actions"><button class="button secondary" id="cancel-delete">Cancel</button><button class="button danger" id="confirm-delete">Delete evaluation</button></div>
+  </dialog>
+</body>
+</html>
