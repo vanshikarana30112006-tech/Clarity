@@ -4,6 +4,33 @@ const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'
 const defaults = {alignment:50, concepts:30, structure:10, completeness:10};
 const labels = {alignment:'Answer alignment', concepts:'Key concepts', structure:'Clarity & structure', completeness:'Development'};
 let templates = [], evaluations = [], deleteId = null, toastTimer, uploadBusy = false;
+let browserHistory = false;
+const storageKey = 'clarity-evaluations-v1';
+
+function storeResults(results) {
+  try {
+    localStorage.setItem(storageKey, JSON.stringify(results));
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+function downloadCSV() {
+  const fields = ['student', 'title', 'score', 'band', 'word_count', 'created'];
+  const cell = value => {
+    let text = String(value ?? '');
+    if (/^[=+\-@]/.test(text.trimStart())) text = "'" + text;
+    return '"' + text.replace(/"/g, '""') + '"';
+  };
+  const rows = evaluations.map(result => fields.map(field => cell(result[field])).join(','));
+  const url = URL.createObjectURL(new Blob([['Student,Assignment,Score,Band,Words,Date', ...rows].join('\r\n')], {type:'text/csv;charset=utf-8'}));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'clarity-results.csv';
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
 
 async function api(url, options={}) {
   const response = await fetch(url, options);
@@ -57,7 +84,14 @@ $('evaluation-form').onsubmit=async e=>{
   if(Object.values(weights).some(v=>!Number.isInteger(v)||v<0||v>100)||Object.values(weights).reduce((a,b)=>a+b,0)!==100)return toast('Rubric weights must be whole numbers that add up to 100%.',true);
   const payload={student:$('student').value.trim(),title:$('title').value.trim(),question:$('question').value.trim(),answer:$('answer').value.trim(),reference:$('reference').value.trim(),concepts:$('concepts').value.split(',').map(x=>x.trim()).filter(Boolean),weights};
   $('evaluate-button').disabled=true;$('evaluate-button').textContent='Evaluating…';
-  try{const result=await api('/api/evaluate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});evaluations.unshift(result);renderResult(result);show('result');toast('Evaluation complete and saved.');}
+  try {
+    const result = await api('/api/evaluate', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
+    evaluations.unshift(result);
+    const saved = !browserHistory || storeResults(evaluations);
+    renderResult(result);
+    show('result');
+    toast(saved ? 'Evaluation complete and saved.' : 'Browser storage is unavailable or full. Download this feedback to keep it.', !saved);
+  }
   catch(error){toast(error.message,true);}
   finally{$('evaluate-button').disabled=false;$('evaluate-button').textContent='Evaluate assignment';}
 };
@@ -94,9 +128,53 @@ function renderResult(r){
   $('back-to-form').onclick=()=>navigate('evaluate');$('print-report').onclick=()=>window.print();$('download-report').onclick=()=>downloadReport(r);$('delete-result').onclick=()=>{deleteId=r.id;$('delete-dialog').showModal();};
 }
 $('cancel-delete').onclick=()=>$('delete-dialog').close();
-$('confirm-delete').onclick=async()=>{try{await api(`/api/evaluations/${deleteId}`,{method:'DELETE'});evaluations=evaluations.filter(r=>r.id!==deleteId);$('delete-dialog').close();navigate('history');toast('Evaluation deleted.');}catch(e){toast(e.message,true);}};
+$('confirm-delete').onclick = async () => {
+  try {
+    const remaining = evaluations.filter(result => result.id !== deleteId);
+    if (browserHistory) {
+      if (!storeResults(remaining)) throw new Error('Could not update browser storage.');
+    } else {
+      await api(`/api/evaluations/${deleteId}`, {method:'DELETE'});
+    }
+    evaluations = remaining;
+    $('delete-dialog').close();
+    navigate('history');
+    toast('Evaluation deleted.');
+  } catch (error) {
+    toast(error.message, true);
+  }
+};
 function downloadReport(r){const text=`CLARITY · ASSIGNMENT FEEDBACK\n\nStudent: ${r.student}\nAssignment: ${r.title}\nDate: ${date(r.created)}\nSuggested score: ${r.score}/100 — ${r.band}\n\nSCORE BREAKDOWN\n${r.criteria.map(c=>`${c.label}: ${c.earned}/${c.weight}`).join('\n')}\n\nWHAT'S WORKING\n${r.strengths.map(x=>'- '+x).join('\n')}\n\nNEXT STEPS\n${r.improvements.map(x=>'- '+x).join('\n')}\n\nQUESTION\n${r.question}\n\nSUBMITTED ANSWER\n${r.answer}\n\nREFERENCE ANSWER\n${r.reference}\n\n${r.review_note}\n`;const url=URL.createObjectURL(new Blob([text],{type:'text/plain;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download=`clarity-feedback-${r.id.slice(0,8)}.txt`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
-async function start(){renderWeights();try{[templates,evaluations]=await Promise.all([api('/api/templates'),api('/api/evaluations')]);templates.forEach(t=>{const option=document.createElement('option');option.value=t.id;option.textContent=t.title;$('template').appendChild(option);});$('template').value=templates[0].id;applyTemplate();show(['history'].includes(location.hash.slice(1))?location.hash.slice(1):'evaluate');}catch(e){toast('Could not connect to the Python service. Start the app and reload. '+e.message,true);}}
+async function start() {
+  renderWeights();
+  try {
+    const [config, availableTemplates] = await Promise.all([api('/api/config'), api('/api/templates')]);
+    templates = availableTemplates;
+    browserHistory = config.browser_history;
+    if (browserHistory) {
+      $('public-storage-note').hidden = false;
+      $('export-results').addEventListener('click', event => {
+        event.preventDefault();
+        downloadCSV();
+      });
+      try {
+        const saved = JSON.parse(localStorage.getItem(storageKey) ?? '[]');
+        if (Array.isArray(saved)) evaluations = saved;
+      } catch (_) {
+        toast('Saved results could not be loaded from this browser.', true);
+      }
+    } else {
+      evaluations = await api('/api/evaluations');
+    }
+    for (const template of templates) $('template').add(new Option(template.title, template.id));
+    $('template').value = templates[0].id;
+    applyTemplate();
+    $('evaluate-button').disabled = false;
+    show(location.hash === '#history' ? 'history' : 'evaluate');
+  } catch (error) {
+    toast('Could not connect to Clarity. Reload the page to try again. ' + error.message, true);
+  }
+}
 if (location.protocol === 'file:') {
   $('local-setup').hidden = false;
   document.querySelector('nav').hidden = true;

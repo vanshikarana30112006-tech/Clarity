@@ -19,6 +19,7 @@ from engine import evaluate, BENCHMARK, DEFAULT_WEIGHTS, words
 
 ROOT=Path(__file__).parent
 DB_PATH=Path(os.environ.get('CLARITY_DB',ROOT/'data'/'clarity.db'))
+PUBLIC_DEMO=os.environ.get('CLARITY_PUBLIC_DEMO') == '1'
 
 @contextmanager
 def connection():
@@ -33,7 +34,8 @@ def connection():
 
 @asynccontextmanager
 async def lifespan(app):
-    with connection(): pass
+    if not PUBLIC_DEMO:
+        with connection(): pass
     yield
 
 app=FastAPI(title='Clarity Assignment Evaluation',lifespan=lifespan)
@@ -49,6 +51,8 @@ async def limits(request:Request,call_next):
         request._body=b''.join(chunks)
     response=await call_next(request)
     response.headers['X-Content-Type-Options']='nosniff'
+    if request.url.path.startswith('/api/'):
+        response.headers['Cache-Control']='no-store'
     return response
 
 class Submission(BaseModel):
@@ -96,6 +100,9 @@ class Submission(BaseModel):
 @app.get('/api/health')
 def health(): return {'status':'ok','model':'TF-IDF + Ridge regression (local)'}
 
+@app.get('/api/config')
+def config(): return {'browser_history': PUBLIC_DEMO}
+
 @app.get('/api/templates')
 def templates(): return TOPICS
 
@@ -105,17 +112,24 @@ def benchmark(): return BENCHMARK
 @app.post('/api/evaluate',status_code=201)
 def grade(submission:Submission):
     result=dict(id=uuid.uuid4().hex,created=datetime.now(timezone.utc).isoformat(),**submission.model_dump(),**evaluate(submission.answer,submission.reference,submission.concepts,submission.weights))
-    with connection() as con:
-        con.execute('INSERT INTO evaluations VALUES (?,?,?)',(result['id'],result['created'],json.dumps(result)))
+    if not PUBLIC_DEMO:
+        with connection() as con:
+            con.execute('INSERT INTO evaluations VALUES (?,?,?)',(result['id'],result['created'],json.dumps(result)))
     return result
+
+def require_local_history():
+    if PUBLIC_DEMO:
+        raise HTTPException(404, 'Saved results are stored in the browser.')
 
 @app.get('/api/evaluations')
 def history():
+    require_local_history()
     with connection() as con:
         return [json.loads(r['payload']) for r in con.execute('SELECT payload FROM evaluations ORDER BY created DESC')]
 
 @app.get('/api/evaluations/{evaluation_id}')
 def detail(evaluation_id:str):
+    require_local_history()
     with connection() as con:
         row=con.execute('SELECT payload FROM evaluations WHERE id=?',(evaluation_id,)).fetchone()
     if not row: raise HTTPException(404,'Evaluation not found.')
@@ -123,6 +137,7 @@ def detail(evaluation_id:str):
 
 @app.delete('/api/evaluations/{evaluation_id}',status_code=204)
 def delete(evaluation_id:str):
+    require_local_history()
     with connection() as con:
         cursor=con.execute('DELETE FROM evaluations WHERE id=?',(evaluation_id,))
         if not cursor.rowcount: raise HTTPException(404,'Evaluation not found.')

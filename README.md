@@ -73,7 +73,13 @@ Clarity uses TF-IDF and Ridge regression. Its scoring artifacts are `model.pkl` 
 
 ## Deployment and privacy
 
-The launcher binds to your computer only. This project has no accounts or multi-user access controls; do not expose the service to the public internet without adding authentication, authorization, secure hosting and operational limits. Python cannot run directly on the Sites static/Worker hosting environment, so this delivery is a runnable local Python project rather than a partially functioning hosted preview.
+This package includes a Render Blueprint for a public demo. Upload the contents to a GitHub repository, then create a **Blueprint** in Render and select that repository. Review the free web service defined in `render.yaml` and deploy it. Render assigns the public address after the service passes the health check.
+
+The Blueprint enables `CLARITY_PUBLIC_DEMO=1`. The server processes uploads and scores but does not create or write a results database. Saved results and CSV exports use each visitor's browser. Use sample or anonymized answers for public demonstrations. Clearing browser storage removes saved results. A free Render instance can take time to wake after being idle.
+
+For a manual Render Web Service deployment, use `pip install -r requirements-lock.txt` as the build command and `uvicorn app:app --host 0.0.0.0 --port $PORT --limit-concurrency 16` as the start command. Set `CLARITY_PUBLIC_DEMO` to `1`. Use `/api/health` for the health check.
+
+For local use, the Windows launcher continues to keep results in its SQLite database. Use the public demo setting for an internet-facing deployment.
 
 The interface uses system fonts and included assets. Evaluation runs on your computer.
 

@@ -56,12 +56,13 @@
         </div>
         <textarea id="answer" rows="7" placeholder="Paste the student’s answer here…" minlength="20" maxlength="30000" required></textarea>
         <div class="inline metadata"><span id="file-status" aria-live="polite">TXT, PDF or DOCX · up to 5 MB</span><span id="word-count">0 words</span></div>
-        <div class="submit-row"><button type="submit" class="button primary" id="evaluate-button">Evaluate assignment</button></div>
+        <p id="public-storage-note" class="metadata" hidden>Use sample or anonymized answers for this public demo. Submissions are sent to the server for scoring. Saved results stay in this browser.</p>
+        <div class="submit-row"><button type="submit" class="button primary" id="evaluate-button" disabled>Evaluate assignment</button></div>
       </form>
     </section>
     <section id="view-result" class="view" hidden></section>
     <section id="view-history" class="view" hidden>
-      <div class="page-heading"><div><h1>Saved results</h1><p>Find and reopen past evaluations.</p></div><a href="/api/export" class="button secondary" download>Download CSV</a></div>
+      <div class="page-heading"><div><h1>Saved results</h1><p>Find and reopen past evaluations.</p></div><a id="export-results" href="/api/export" class="button secondary" download>Download CSV</a></div>
       <div class="panel">
         <label for="search">Search results</label>
         <input id="search" type="search" placeholder="Student or assignment name">
